@@ -1,0 +1,56 @@
+services:
+  bun:
+    build: ./app
+    restart: unless-stopped
+    networks:
+      - app-network
+  nginx:
+    build: ./nginx
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx/nginx-templates:/nginx-templates:ro
+      - webroot:/var/www/html
+      - certbot-etc:/etc/letsencrypt
+    environment:
+      - DOMAIN=$DOMAIN
+    depends_on:
+      - bun
+    networks:
+      - app-network
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - webroot:/var/www/html
+      - certbot-etc:/etc/letsencrypt
+    depends_on:
+      - nginx
+    command: certonly -v --webroot --webroot-path=/var/www/html --email $EMAIL --agree-tos --no-eff-email -d $DOMAIN # add --staging for testing
+    networks:
+      - app-network
+  cron:
+    build: ./cron
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./docker-compose.yml:/app/docker-compose.yml:ro
+      - ./.env:/app/.env:ro
+    environment:
+      - COMPOSE_PROJECT_NAME=$COMPOSE_PROJECT_NAME
+    depends_on:
+      - nginx
+
+volumes:
+  certbot-etc:
+  webroot:
+    driver: local
+    driver_opts:
+      type: none
+      device: /var/www/html
+      o: bind
+
+networks:
+  app-network:
+    driver: bridge

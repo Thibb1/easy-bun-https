@@ -1,0 +1,15 @@
+{
+  "name": "app",
+  "module": "index.tsx",
+  "type": "module",
+  "scripts": {
+    "start": "bun run index.tsx",
+    "dev": "bun --hot run index.tsx"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
