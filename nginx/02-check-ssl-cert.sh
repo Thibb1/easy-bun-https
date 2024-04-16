@@ -27,7 +27,7 @@ check_ssl_cert() {
     # change the nginx configuration template
     move_if_exists /etc/nginx/templates/nginx.conf.bkp /etc/nginx/templates/nginx.conf.template
     # reload template configurations
-    bash /docker-entrypoint.d/20-envsubst-on-templates.sh
+    sh /docker-entrypoint.d/20-envsubst-on-templates.sh
     entrypoint_log "$ME: Reloading NGINX"
     nginx -s reload
 }
